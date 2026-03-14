@@ -1,0 +1,1026 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Warehouse Management API",
+        "description": "API quản lý kho dùng Laravel 12, MySQL, Sanctum, Spatie Permission và Swagger",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Local server"
+        }
+    ],
+    "paths": {
+        "/api/v1/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Đăng nhập",
+                "operationId": "1eaad5044f49331e2e4a269354b56d7b",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Đăng nhập thành công"
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Đăng xuất",
+                "operationId": "f429f77c76ed94c688e77779a9621005",
+                "responses": {
+                    "200": {
+                        "description": "Đăng xuất thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/auth/me": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Thông tin tài khoản hiện tại",
+                "operationId": "21900d7507dd7fa34d2eca27483f1c17",
+                "responses": {
+                    "200": {
+                        "description": "Thông tin người dùng"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Danh sách người dùng",
+                "operationId": "9e0b62062c3f89d54aa5cdca9ab3a5de",
+                "responses": {
+                    "200": {
+                        "description": "Danh sách người dùng"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Tạo người dùng",
+                "operationId": "1c39d237833f73d6aafb23253cd59b5e",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Tạo người dùng thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/users/{user}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Chi tiết người dùng",
+                "operationId": "51bdddef4ac59a22a258c03b8eca70d7",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chi tiết người dùng"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Cập nhật người dùng",
+                "operationId": "f3fc540e3116e6c02c2f8e0b66b8551f",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cập nhật thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Xóa người dùng",
+                "operationId": "c990507156b0d0cd39bfa3fb9fb41a2a",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Xóa thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/warehouses": {
+            "get": {
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Danh sách kho và tìm theo địa chỉ",
+                "operationId": "27a29ac123100e7ea154cdb31e484722",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Danh sách kho"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Tạo kho",
+                "operationId": "2ec0b1fe94eeed133631c0c3d1855c35",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Tạo kho thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/warehouses/{warehouse}": {
+            "get": {
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Chi tiết kho",
+                "operationId": "69caad8bddbe566e28f90b7d494f4457",
+                "parameters": [
+                    {
+                        "name": "warehouse",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chi tiết kho"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Cập nhật kho",
+                "operationId": "a6e9932c78a279fbcbf67e7f78354b02",
+                "parameters": [
+                    {
+                        "name": "warehouse",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cập nhật thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Warehouses"
+                ],
+                "summary": "Xóa kho",
+                "operationId": "148a70a3c97853a9819216fd6f346bdd",
+                "parameters": [
+                    {
+                        "name": "warehouse",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Xóa thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/product-groups": {
+            "get": {
+                "tags": [
+                    "Product Groups"
+                ],
+                "summary": "Danh sách nhóm hàng",
+                "operationId": "59fd995bcfe6e41635e75372a8f3620f",
+                "responses": {
+                    "200": {
+                        "description": "Danh sách nhóm hàng"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Product Groups"
+                ],
+                "summary": "Tạo nhóm hàng",
+                "operationId": "d1a422a5b3749172d8efa3c44bda6006",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Tạo nhóm hàng thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/product-groups/{productGroup}": {
+            "get": {
+                "tags": [
+                    "Product Groups"
+                ],
+                "summary": "Chi tiết nhóm hàng",
+                "operationId": "96ed0df723c73713cb16b683cd4572e3",
+                "parameters": [
+                    {
+                        "name": "productGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chi tiết nhóm hàng"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Product Groups"
+                ],
+                "summary": "Cập nhật nhóm hàng",
+                "operationId": "b1b0a7ff06d946255971be37881c7600",
+                "parameters": [
+                    {
+                        "name": "productGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cập nhật thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Product Groups"
+                ],
+                "summary": "Xóa nhóm hàng",
+                "operationId": "7fb7f3eca278097391b9c56eae8d53dc",
+                "parameters": [
+                    {
+                        "name": "productGroup",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Xóa thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/products": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Danh sách sản phẩm, tìm theo tên / mã",
+                "operationId": "08154df87e874e636c463d4cefbad735",
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Danh sách sản phẩm"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Tạo sản phẩm",
+                "operationId": "ddeac8f3367d353241dcd440da907fe6",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Tạo sản phẩm thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/products/{product}": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Chi tiết sản phẩm và tồn theo kho",
+                "operationId": "61ee7be48d108616517d3d07cec173a0",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chi tiết sản phẩm"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Cập nhật sản phẩm",
+                "operationId": "92c2adae2e731995a89c6f56c9310a71",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cập nhật thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Xóa sản phẩm",
+                "operationId": "f7d0bafe8cc3efca198a904fd29f8abc",
+                "parameters": [
+                    {
+                        "name": "product",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Xóa thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/stock-receipts": {
+            "get": {
+                "tags": [
+                    "Stock Receipts"
+                ],
+                "summary": "Danh sách phiếu nhập",
+                "operationId": "05c9dad583cb521e64675a4af6af0c30",
+                "responses": {
+                    "200": {
+                        "description": "Danh sách phiếu nhập"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Stock Receipts"
+                ],
+                "summary": "Lập phiếu nhập kho",
+                "operationId": "2ab633455ec91c8c244401377ba4eb8f",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Lập phiếu nhập thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/stock-receipts/{stockReceipt}": {
+            "get": {
+                "tags": [
+                    "Stock Receipts"
+                ],
+                "summary": "Chi tiết phiếu nhập",
+                "operationId": "9524c0508d9d0d69f0b6c605fae2c01d",
+                "parameters": [
+                    {
+                        "name": "stockReceipt",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chi tiết phiếu nhập"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/stock-issues": {
+            "get": {
+                "tags": [
+                    "Stock Issues"
+                ],
+                "summary": "Danh sách phiếu xuất",
+                "operationId": "fc6e1f6ea37b70cba52045002c2f8c60",
+                "responses": {
+                    "200": {
+                        "description": "Danh sách phiếu xuất"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Stock Issues"
+                ],
+                "summary": "Lập phiếu xuất kho",
+                "operationId": "62347f5e7770443b24c7b1a3423ef49e",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Lập phiếu xuất thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/stock-issues/{stockIssue}": {
+            "get": {
+                "tags": [
+                    "Stock Issues"
+                ],
+                "summary": "Chi tiết phiếu xuất",
+                "operationId": "454409ec899d49d6c7b58fa34ebdfae7",
+                "parameters": [
+                    {
+                        "name": "stockIssue",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chi tiết phiếu xuất"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/stock-transfers": {
+            "get": {
+                "tags": [
+                    "Stock Transfers"
+                ],
+                "summary": "Danh sách phiếu điều chuyển",
+                "operationId": "5e6430ca9eb9c36a087c8ba085b62223",
+                "responses": {
+                    "200": {
+                        "description": "Danh sách phiếu điều chuyển"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Stock Transfers"
+                ],
+                "summary": "Lập phiếu điều chuyển kho",
+                "operationId": "542a600e6a053fc90e11ae8c7096a54d",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Lập phiếu điều chuyển thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/stock-transfers/{stockTransfer}": {
+            "get": {
+                "tags": [
+                    "Stock Transfers"
+                ],
+                "summary": "Chi tiết phiếu điều chuyển",
+                "operationId": "58ff859a5f1f358b82c50cbb28ecb44c",
+                "parameters": [
+                    {
+                        "name": "stockTransfer",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chi tiết phiếu điều chuyển"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/stocktakes": {
+            "get": {
+                "tags": [
+                    "Stocktakes"
+                ],
+                "summary": "Danh sách biên bản kiểm kê",
+                "operationId": "f12a9028b7284f664abcf00a480df6de",
+                "responses": {
+                    "200": {
+                        "description": "Danh sách kiểm kê"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Stocktakes"
+                ],
+                "summary": "Lập biên bản kiểm kê",
+                "operationId": "49baf308b747ac8195e20273bb6309d5",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Tạo biên bản kiểm kê thành công"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/stocktakes/{stocktake}": {
+            "get": {
+                "tags": [
+                    "Stocktakes"
+                ],
+                "summary": "Chi tiết biên bản kiểm kê",
+                "operationId": "1f7538cd8ec2d937246e7b2574b57317",
+                "parameters": [
+                    {
+                        "name": "stocktake",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chi tiết biên bản kiểm kê"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/inventory-by-warehouse": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Báo cáo tồn kho theo từng kho",
+                "operationId": "a74f4591adafc87372d8b4cd486db5af",
+                "responses": {
+                    "200": {
+                        "description": "Báo cáo tồn kho"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/in-out-by-period": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Báo cáo nhập xuất theo thời gian",
+                "operationId": "a2b0963af2ce95c034acc4f34d4169bb",
+                "parameters": [
+                    {
+                        "name": "from_date",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "to_date",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Báo cáo nhập xuất"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/low-stock": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Báo cáo hàng sắp hết",
+                "operationId": "d53c557ff6d0611a0cee0e3802520d6d",
+                "responses": {
+                    "200": {
+                        "description": "Báo cáo hàng sắp hết"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/slow-moving": {
+            "get": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Báo cáo hàng tồn lâu",
+                "operationId": "7068f6a08ca7684ecd5777d4c890c33d",
+                "parameters": [
+                    {
+                        "name": "days",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Báo cáo hàng tồn lâu"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Nhập token theo dạng: Bearer {token}",
+                "scheme": "bearer",
+                "bearerFormat": "Token"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "Đăng nhập / đăng xuất"
+        },
+        {
+            "name": "Users",
+            "description": "Quản lý người dùng"
+        },
+        {
+            "name": "Warehouses",
+            "description": "Quản lý kho"
+        },
+        {
+            "name": "Product Groups",
+            "description": "Quản lý nhóm hàng"
+        },
+        {
+            "name": "Products",
+            "description": "Quản lý sản phẩm"
+        },
+        {
+            "name": "Stock Receipts",
+            "description": "Nhập kho"
+        },
+        {
+            "name": "Stock Issues",
+            "description": "Xuất kho"
+        },
+        {
+            "name": "Stock Transfers",
+            "description": "Điều chuyển kho"
+        },
+        {
+            "name": "Stocktakes",
+            "description": "Kiểm kê kho"
+        },
+        {
+            "name": "Reports",
+            "description": "Báo cáo và thống kê"
+        }
+    ],
+    "security": [
+        {
+            "sanctum": []
+        }
+    ]
+}
