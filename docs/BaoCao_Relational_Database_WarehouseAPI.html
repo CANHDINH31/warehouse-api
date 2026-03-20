@@ -1,0 +1,1100 @@
+<!doctype html>
+<html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Báo cáo Relational Database - Warehouse API</title>
+        <style>
+            body {
+                font-family: Calibri, Arial, sans-serif;
+                font-size: 11pt;
+                line-height: 1.45;
+                color: #111;
+                margin: 28px;
+            }
+            h1,
+            h2,
+            h3 {
+                margin: 0 0 10px 0;
+            }
+            h1 {
+                font-size: 20pt;
+            }
+            h2 {
+                font-size: 14pt;
+                margin-top: 22px;
+            }
+            h3 {
+                font-size: 12pt;
+                margin-top: 16px;
+            }
+            p {
+                margin: 6px 0;
+            }
+            table {
+                border-collapse: collapse;
+                width: 100%;
+                margin: 8px 0 16px 0;
+            }
+            th,
+            td {
+                border: 1px solid #777;
+                padding: 6px 8px;
+                vertical-align: top;
+            }
+            th {
+                background: #f2f2f2;
+            }
+            .small {
+                font-size: 10pt;
+                color: #333;
+            }
+            .section-note {
+                background: #f8fbff;
+                border-left: 4px solid #2b6cb0;
+                padding: 8px 10px;
+                margin: 10px 0;
+            }
+            .mono {
+                font-family: Consolas, monospace;
+                font-size: 10pt;
+            }
+            .nowrap {
+                white-space: nowrap;
+            }
+        </style>
+    </head>
+    <body>
+        <h2>1. Tổng quan mô hình dữ liệu</h2>
+        <p>Hệ thống được tổ chức theo các nhóm chính:</p>
+        <ul>
+            <li><b>Danh mục</b>: product_groups, products, warehouses</li>
+            <li><b>Tồn kho hiện tại</b>: inventories</li>
+            <li>
+                <b>Chứng từ nhập/xuất/chuyển/kiểm kê</b>: stock_receipts,
+                stock_issues, stock_transfers, stocktakes và các bảng chi tiết
+                tương ứng
+            </li>
+            <li><b>Nhật ký biến động kho</b>: inventory_transactions</li>
+            <li>
+                <b>Người dùng & phân quyền</b>: users, roles, permissions và
+                bảng trung gian
+            </li>
+        </ul>
+
+        <h2>2. Sơ đồ quan hệ (dạng văn bản dễ dán Word)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Quan hệ</th>
+                    <th>Loại</th>
+                    <th>Mô tả</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>product_groups.id → products.product_group_id</td>
+                    <td>1 - N</td>
+                    <td>Một nhóm sản phẩm có nhiều sản phẩm</td>
+                </tr>
+                <tr>
+                    <td>warehouses.id → inventories.warehouse_id</td>
+                    <td>1 - N</td>
+                    <td>Một kho có nhiều dòng tồn kho</td>
+                </tr>
+                <tr>
+                    <td>products.id → inventories.product_id</td>
+                    <td>1 - N</td>
+                    <td>Một sản phẩm xuất hiện ở nhiều kho</td>
+                </tr>
+                <tr>
+                    <td>warehouses.id → stock_receipts.warehouse_id</td>
+                    <td>1 - N</td>
+                    <td>Chứng từ nhập gắn với một kho</td>
+                </tr>
+                <tr>
+                    <td>
+                        stock_receipts.id → stock_receipt_items.stock_receipt_id
+                    </td>
+                    <td>1 - N</td>
+                    <td>Một phiếu nhập có nhiều dòng chi tiết</td>
+                </tr>
+                <tr>
+                    <td>products.id → stock_receipt_items.product_id</td>
+                    <td>1 - N</td>
+                    <td>Một sản phẩm có thể nằm trong nhiều phiếu nhập</td>
+                </tr>
+                <tr>
+                    <td>warehouses.id → stock_issues.warehouse_id</td>
+                    <td>1 - N</td>
+                    <td>Chứng từ xuất gắn với một kho</td>
+                </tr>
+                <tr>
+                    <td>stock_issues.id → stock_issue_items.stock_issue_id</td>
+                    <td>1 - N</td>
+                    <td>Một phiếu xuất có nhiều dòng chi tiết</td>
+                </tr>
+                <tr>
+                    <td>products.id → stock_issue_items.product_id</td>
+                    <td>1 - N</td>
+                    <td>Một sản phẩm có thể nằm trong nhiều phiếu xuất</td>
+                </tr>
+                <tr>
+                    <td>warehouses.id → stock_transfers.from_warehouse_id</td>
+                    <td>1 - N</td>
+                    <td>Kho nguồn trong chứng từ chuyển kho</td>
+                </tr>
+                <tr>
+                    <td>warehouses.id → stock_transfers.to_warehouse_id</td>
+                    <td>1 - N</td>
+                    <td>Kho đích trong chứng từ chuyển kho</td>
+                </tr>
+                <tr>
+                    <td>
+                        stock_transfers.id →
+                        stock_transfer_items.stock_transfer_id
+                    </td>
+                    <td>1 - N</td>
+                    <td>Một phiếu chuyển có nhiều dòng chi tiết</td>
+                </tr>
+                <tr>
+                    <td>products.id → stock_transfer_items.product_id</td>
+                    <td>1 - N</td>
+                    <td>Sản phẩm trong dòng chuyển kho</td>
+                </tr>
+                <tr>
+                    <td>warehouses.id → stocktakes.warehouse_id</td>
+                    <td>1 - N</td>
+                    <td>Phiếu kiểm kê gắn với một kho</td>
+                </tr>
+                <tr>
+                    <td>stocktakes.id → stocktake_items.stocktake_id</td>
+                    <td>1 - N</td>
+                    <td>Một phiếu kiểm kê có nhiều dòng kiểm kê</td>
+                </tr>
+                <tr>
+                    <td>products.id → stocktake_items.product_id</td>
+                    <td>1 - N</td>
+                    <td>Sản phẩm trong dòng kiểm kê</td>
+                </tr>
+                <tr>
+                    <td>warehouses.id → inventory_transactions.warehouse_id</td>
+                    <td>1 - N</td>
+                    <td>Nhật ký giao dịch theo kho</td>
+                </tr>
+                <tr>
+                    <td>products.id → inventory_transactions.product_id</td>
+                    <td>1 - N</td>
+                    <td>Nhật ký giao dịch theo sản phẩm</td>
+                </tr>
+                <tr>
+                    <td>
+                        users.id → (stock_receipts, stock_issues,
+                        stock_transfers, stocktakes,
+                        inventory_transactions).created_by
+                    </td>
+                    <td>1 - N</td>
+                    <td>Người tạo chứng từ/giao dịch</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>3. Từ điển dữ liệu chi tiết</h2>
+
+        <h3>3.1. Bảng users</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Định danh người dùng</td>
+            </tr>
+            <tr>
+                <td>name</td>
+                <td>string</td>
+                <td>NOT NULL</td>
+                <td>Họ tên</td>
+            </tr>
+            <tr>
+                <td>email</td>
+                <td>string</td>
+                <td>UNIQUE, NOT NULL</td>
+                <td>Email đăng nhập</td>
+            </tr>
+            <tr>
+                <td>email_verified_at</td>
+                <td>timestamp</td>
+                <td>NULL</td>
+                <td>Thời điểm xác thực email</td>
+            </tr>
+            <tr>
+                <td>password</td>
+                <td>string</td>
+                <td>NOT NULL</td>
+                <td>Mật khẩu đã hash</td>
+            </tr>
+            <tr>
+                <td>is_active</td>
+                <td>boolean</td>
+                <td>DEFAULT true</td>
+                <td>Trạng thái hoạt động</td>
+            </tr>
+            <tr>
+                <td>remember_token</td>
+                <td>string</td>
+                <td>NULL</td>
+                <td>Token nhớ đăng nhập</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+        </table>
+
+        <h3>3.2. Bảng product_groups</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Mã nhóm sản phẩm</td>
+            </tr>
+            <tr>
+                <td>code</td>
+                <td>string</td>
+                <td>UNIQUE</td>
+                <td>Mã nhóm</td>
+            </tr>
+            <tr>
+                <td>name</td>
+                <td>string</td>
+                <td>NOT NULL</td>
+                <td>Tên nhóm</td>
+            </tr>
+            <tr>
+                <td>description</td>
+                <td>text</td>
+                <td>NULL</td>
+                <td>Mô tả</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+        </table>
+
+        <h3>3.3. Bảng products</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Mã sản phẩm</td>
+            </tr>
+            <tr>
+                <td>product_group_id</td>
+                <td>bigint</td>
+                <td>FK → product_groups.id, NULL</td>
+                <td>Nhóm sản phẩm</td>
+            </tr>
+            <tr>
+                <td>code</td>
+                <td>string</td>
+                <td>UNIQUE</td>
+                <td>Mã sản phẩm</td>
+            </tr>
+            <tr>
+                <td>name</td>
+                <td>string</td>
+                <td>INDEX</td>
+                <td>Tên sản phẩm</td>
+            </tr>
+            <tr>
+                <td>unit</td>
+                <td>string</td>
+                <td>NOT NULL</td>
+                <td>Đơn vị tính</td>
+            </tr>
+            <tr>
+                <td>min_stock_alert</td>
+                <td>decimal(18,3)</td>
+                <td>DEFAULT 0</td>
+                <td>Ngưỡng cảnh báo tối thiểu</td>
+            </tr>
+            <tr>
+                <td>shelf_life_days</td>
+                <td>unsigned int</td>
+                <td>NULL</td>
+                <td>Hạn sử dụng (ngày)</td>
+            </tr>
+            <tr>
+                <td>description</td>
+                <td>text</td>
+                <td>NULL</td>
+                <td>Mô tả sản phẩm</td>
+            </tr>
+            <tr>
+                <td>is_active</td>
+                <td>boolean</td>
+                <td>DEFAULT true</td>
+                <td>Trạng thái hoạt động</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+        </table>
+
+        <h3>3.4. Bảng warehouses</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Mã kho</td>
+            </tr>
+            <tr>
+                <td>code</td>
+                <td>string</td>
+                <td>UNIQUE</td>
+                <td>Mã kho</td>
+            </tr>
+            <tr>
+                <td>name</td>
+                <td>string</td>
+                <td>NOT NULL</td>
+                <td>Tên kho</td>
+            </tr>
+            <tr>
+                <td>address</td>
+                <td>string</td>
+                <td>NOT NULL</td>
+                <td>Địa chỉ kho</td>
+            </tr>
+            <tr>
+                <td>description</td>
+                <td>text</td>
+                <td>NULL</td>
+                <td>Mô tả</td>
+            </tr>
+            <tr>
+                <td>is_active</td>
+                <td>boolean</td>
+                <td>DEFAULT true</td>
+                <td>Trạng thái</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+        </table>
+
+        <h3>3.5. Bảng inventories</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Mã dòng tồn kho</td>
+            </tr>
+            <tr>
+                <td>warehouse_id</td>
+                <td>bigint</td>
+                <td>FK → warehouses.id</td>
+                <td>Kho</td>
+            </tr>
+            <tr>
+                <td>product_id</td>
+                <td>bigint</td>
+                <td>FK → products.id</td>
+                <td>Sản phẩm</td>
+            </tr>
+            <tr>
+                <td>quantity</td>
+                <td>decimal(18,3)</td>
+                <td>DEFAULT 0</td>
+                <td>Số lượng tồn hiện tại</td>
+            </tr>
+            <tr>
+                <td>last_movement_at</td>
+                <td>timestamp</td>
+                <td>NULL</td>
+                <td>Lần biến động gần nhất</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <b>Unique key:</b> (warehouse_id, product_id)
+                </td>
+            </tr>
+        </table>
+
+        <h3>3.6. Bảng stock_receipts (phiếu nhập)</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Mã phiếu nhập</td>
+            </tr>
+            <tr>
+                <td>code</td>
+                <td>string</td>
+                <td>UNIQUE</td>
+                <td>Mã chứng từ nhập</td>
+            </tr>
+            <tr>
+                <td>warehouse_id</td>
+                <td>bigint</td>
+                <td>FK → warehouses.id</td>
+                <td>Kho nhập</td>
+            </tr>
+            <tr>
+                <td>receipt_date</td>
+                <td>date</td>
+                <td>INDEX</td>
+                <td>Ngày nhập</td>
+            </tr>
+            <tr>
+                <td>note</td>
+                <td>text</td>
+                <td>NULL</td>
+                <td>Ghi chú</td>
+            </tr>
+            <tr>
+                <td>created_by</td>
+                <td>bigint</td>
+                <td>FK → users.id, NULL</td>
+                <td>Người tạo</td>
+            </tr>
+            <tr>
+                <td>total_amount</td>
+                <td>decimal(18,2)</td>
+                <td>DEFAULT 0</td>
+                <td>Tổng tiền</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+        </table>
+
+        <h3>3.7. Bảng stock_receipt_items</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Mã dòng chi tiết</td>
+            </tr>
+            <tr>
+                <td>stock_receipt_id</td>
+                <td>bigint</td>
+                <td>FK → stock_receipts.id</td>
+                <td>Thuộc phiếu nhập nào</td>
+            </tr>
+            <tr>
+                <td>product_id</td>
+                <td>bigint</td>
+                <td>FK → products.id</td>
+                <td>Sản phẩm</td>
+            </tr>
+            <tr>
+                <td>quantity</td>
+                <td>decimal(18,3)</td>
+                <td>NOT NULL</td>
+                <td>Số lượng</td>
+            </tr>
+            <tr>
+                <td>unit_cost</td>
+                <td>decimal(18,2)</td>
+                <td>DEFAULT 0</td>
+                <td>Đơn giá nhập</td>
+            </tr>
+            <tr>
+                <td>line_total</td>
+                <td>decimal(18,2)</td>
+                <td>DEFAULT 0</td>
+                <td>Thành tiền dòng</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+        </table>
+
+        <h3>3.8. Bảng stock_issues (phiếu xuất)</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Mã phiếu xuất</td>
+            </tr>
+            <tr>
+                <td>code</td>
+                <td>string</td>
+                <td>UNIQUE</td>
+                <td>Mã chứng từ xuất</td>
+            </tr>
+            <tr>
+                <td>warehouse_id</td>
+                <td>bigint</td>
+                <td>FK → warehouses.id</td>
+                <td>Kho xuất</td>
+            </tr>
+            <tr>
+                <td>issue_date</td>
+                <td>date</td>
+                <td>INDEX</td>
+                <td>Ngày xuất</td>
+            </tr>
+            <tr>
+                <td>note</td>
+                <td>text</td>
+                <td>NULL</td>
+                <td>Ghi chú</td>
+            </tr>
+            <tr>
+                <td>created_by</td>
+                <td>bigint</td>
+                <td>FK → users.id, NULL</td>
+                <td>Người tạo</td>
+            </tr>
+            <tr>
+                <td>total_amount</td>
+                <td>decimal(18,2)</td>
+                <td>DEFAULT 0</td>
+                <td>Tổng tiền</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+        </table>
+
+        <h3>3.9. Bảng stock_issue_items</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Mã dòng chi tiết</td>
+            </tr>
+            <tr>
+                <td>stock_issue_id</td>
+                <td>bigint</td>
+                <td>FK → stock_issues.id</td>
+                <td>Thuộc phiếu xuất nào</td>
+            </tr>
+            <tr>
+                <td>product_id</td>
+                <td>bigint</td>
+                <td>FK → products.id</td>
+                <td>Sản phẩm</td>
+            </tr>
+            <tr>
+                <td>quantity</td>
+                <td>decimal(18,3)</td>
+                <td>NOT NULL</td>
+                <td>Số lượng</td>
+            </tr>
+            <tr>
+                <td>unit_price</td>
+                <td>decimal(18,2)</td>
+                <td>DEFAULT 0</td>
+                <td>Đơn giá xuất</td>
+            </tr>
+            <tr>
+                <td>line_total</td>
+                <td>decimal(18,2)</td>
+                <td>DEFAULT 0</td>
+                <td>Thành tiền dòng</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+        </table>
+
+        <h3>3.10. Bảng stock_transfers (phiếu chuyển kho)</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Mã phiếu chuyển</td>
+            </tr>
+            <tr>
+                <td>code</td>
+                <td>string</td>
+                <td>UNIQUE</td>
+                <td>Mã chứng từ chuyển</td>
+            </tr>
+            <tr>
+                <td>from_warehouse_id</td>
+                <td>bigint</td>
+                <td>FK → warehouses.id</td>
+                <td>Kho nguồn</td>
+            </tr>
+            <tr>
+                <td>to_warehouse_id</td>
+                <td>bigint</td>
+                <td>FK → warehouses.id</td>
+                <td>Kho đích</td>
+            </tr>
+            <tr>
+                <td>transfer_date</td>
+                <td>date</td>
+                <td>INDEX</td>
+                <td>Ngày chuyển</td>
+            </tr>
+            <tr>
+                <td>note</td>
+                <td>text</td>
+                <td>NULL</td>
+                <td>Ghi chú</td>
+            </tr>
+            <tr>
+                <td>created_by</td>
+                <td>bigint</td>
+                <td>FK → users.id, NULL</td>
+                <td>Người tạo</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+        </table>
+
+        <h3>3.11. Bảng stock_transfer_items</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Mã dòng chi tiết</td>
+            </tr>
+            <tr>
+                <td>stock_transfer_id</td>
+                <td>bigint</td>
+                <td>FK → stock_transfers.id</td>
+                <td>Thuộc phiếu chuyển nào</td>
+            </tr>
+            <tr>
+                <td>product_id</td>
+                <td>bigint</td>
+                <td>FK → products.id</td>
+                <td>Sản phẩm</td>
+            </tr>
+            <tr>
+                <td>quantity</td>
+                <td>decimal(18,3)</td>
+                <td>NOT NULL</td>
+                <td>Số lượng chuyển</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+        </table>
+
+        <h3>3.12. Bảng stocktakes (phiếu kiểm kê)</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Mã phiếu kiểm kê</td>
+            </tr>
+            <tr>
+                <td>code</td>
+                <td>string</td>
+                <td>UNIQUE</td>
+                <td>Mã chứng từ kiểm kê</td>
+            </tr>
+            <tr>
+                <td>warehouse_id</td>
+                <td>bigint</td>
+                <td>FK → warehouses.id</td>
+                <td>Kho kiểm kê</td>
+            </tr>
+            <tr>
+                <td>checked_at</td>
+                <td>date</td>
+                <td>INDEX</td>
+                <td>Ngày kiểm kê</td>
+            </tr>
+            <tr>
+                <td>note</td>
+                <td>text</td>
+                <td>NULL</td>
+                <td>Ghi chú</td>
+            </tr>
+            <tr>
+                <td>apply_adjustment</td>
+                <td>boolean</td>
+                <td>DEFAULT false</td>
+                <td>Áp dụng điều chỉnh tồn</td>
+            </tr>
+            <tr>
+                <td>created_by</td>
+                <td>bigint</td>
+                <td>FK → users.id, NULL</td>
+                <td>Người tạo</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+        </table>
+
+        <h3>3.13. Bảng stocktake_items</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Mã dòng kiểm kê</td>
+            </tr>
+            <tr>
+                <td>stocktake_id</td>
+                <td>bigint</td>
+                <td>FK → stocktakes.id</td>
+                <td>Thuộc phiếu kiểm kê nào</td>
+            </tr>
+            <tr>
+                <td>product_id</td>
+                <td>bigint</td>
+                <td>FK → products.id</td>
+                <td>Sản phẩm kiểm kê</td>
+            </tr>
+            <tr>
+                <td>system_qty</td>
+                <td>decimal(18,3)</td>
+                <td>NOT NULL</td>
+                <td>Số lượng hệ thống</td>
+            </tr>
+            <tr>
+                <td>actual_qty</td>
+                <td>decimal(18,3)</td>
+                <td>NOT NULL</td>
+                <td>Số lượng thực tế</td>
+            </tr>
+            <tr>
+                <td>variance_qty</td>
+                <td>decimal(18,3)</td>
+                <td>NOT NULL</td>
+                <td>Chênh lệch (thực tế - hệ thống)</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+        </table>
+
+        <h3>3.14. Bảng inventory_transactions</h3>
+        <table>
+            <tr>
+                <th>Cột</th>
+                <th>Kiểu</th>
+                <th>Ràng buộc</th>
+                <th>Ý nghĩa</th>
+            </tr>
+            <tr>
+                <td>id</td>
+                <td>bigint</td>
+                <td>PK</td>
+                <td>Mã giao dịch kho</td>
+            </tr>
+            <tr>
+                <td>warehouse_id</td>
+                <td>bigint</td>
+                <td>FK → warehouses.id</td>
+                <td>Kho phát sinh</td>
+            </tr>
+            <tr>
+                <td>product_id</td>
+                <td>bigint</td>
+                <td>FK → products.id</td>
+                <td>Sản phẩm phát sinh</td>
+            </tr>
+            <tr>
+                <td>movement_type</td>
+                <td>string</td>
+                <td>INDEX</td>
+                <td>Loại biến động (IN/OUT/ADJUST...)</td>
+            </tr>
+            <tr>
+                <td>quantity</td>
+                <td>decimal(18,3)</td>
+                <td>NOT NULL</td>
+                <td>Số lượng biến động</td>
+            </tr>
+            <tr>
+                <td>balance_after</td>
+                <td>decimal(18,3)</td>
+                <td>NOT NULL</td>
+                <td>Tồn sau giao dịch</td>
+            </tr>
+            <tr>
+                <td>unit_cost</td>
+                <td>decimal(18,2)</td>
+                <td>NULL</td>
+                <td>Đơn giá tham chiếu</td>
+            </tr>
+            <tr>
+                <td>transacted_at</td>
+                <td>datetime</td>
+                <td>INDEX phối hợp</td>
+                <td>Thời điểm giao dịch</td>
+            </tr>
+            <tr>
+                <td>reference_code</td>
+                <td>string</td>
+                <td>NULL</td>
+                <td>Mã tham chiếu chứng từ</td>
+            </tr>
+            <tr>
+                <td>note</td>
+                <td>text</td>
+                <td>NULL</td>
+                <td>Ghi chú</td>
+            </tr>
+            <tr>
+                <td>created_by</td>
+                <td>bigint</td>
+                <td>FK → users.id, NULL</td>
+                <td>Người tạo</td>
+            </tr>
+            <tr>
+                <td>created_at, updated_at</td>
+                <td>timestamp</td>
+                <td></td>
+                <td>Thời gian tạo/cập nhật</td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <b>Index:</b> (warehouse_id, product_id, transacted_at) với
+                    tên inventory_transactions_lookup_idx
+                </td>
+            </tr>
+        </table>
+
+        <h2>4. Ràng buộc xóa (ON DELETE)</h2>
+        <table>
+            <tr>
+                <th>Quan hệ FK</th>
+                <th>Hành vi xóa</th>
+                <th>Giải thích</th>
+            </tr>
+            <tr>
+                <td>products.product_group_id → product_groups.id</td>
+                <td>SET NULL</td>
+                <td>Xóa nhóm không xóa sản phẩm, chỉ bỏ liên kết nhóm</td>
+            </tr>
+            <tr>
+                <td>inventories.(warehouse_id, product_id)</td>
+                <td>CASCADE</td>
+                <td>Xóa kho/sản phẩm sẽ xóa bản ghi tồn liên quan</td>
+            </tr>
+            <tr>
+                <td>stock_receipts.warehouse_id</td>
+                <td>RESTRICT</td>
+                <td>Không cho xóa kho nếu còn phiếu nhập</td>
+            </tr>
+            <tr>
+                <td>stock_receipts.created_by</td>
+                <td>SET NULL</td>
+                <td>Xóa user vẫn giữ phiếu, bỏ thông tin người tạo</td>
+            </tr>
+            <tr>
+                <td>stock_receipt_items.stock_receipt_id</td>
+                <td>CASCADE</td>
+                <td>Xóa phiếu nhập sẽ xóa dòng chi tiết</td>
+            </tr>
+            <tr>
+                <td>stock_receipt_items.product_id</td>
+                <td>RESTRICT</td>
+                <td>Không cho xóa sản phẩm nếu còn dòng phiếu nhập</td>
+            </tr>
+            <tr>
+                <td>stock_issues.warehouse_id</td>
+                <td>RESTRICT</td>
+                <td>Không cho xóa kho nếu còn phiếu xuất</td>
+            </tr>
+            <tr>
+                <td>stock_issues.created_by</td>
+                <td>SET NULL</td>
+                <td>Xóa user không làm mất phiếu xuất</td>
+            </tr>
+            <tr>
+                <td>stock_issue_items.stock_issue_id</td>
+                <td>CASCADE</td>
+                <td>Xóa phiếu xuất sẽ xóa chi tiết</td>
+            </tr>
+            <tr>
+                <td>stock_issue_items.product_id</td>
+                <td>RESTRICT</td>
+                <td>Không cho xóa sản phẩm nếu còn dòng xuất</td>
+            </tr>
+            <tr>
+                <td>stock_transfers.from_warehouse_id, to_warehouse_id</td>
+                <td>RESTRICT</td>
+                <td>Không cho xóa kho nếu có lịch sử chuyển kho</td>
+            </tr>
+            <tr>
+                <td>stock_transfers.created_by</td>
+                <td>SET NULL</td>
+                <td>Xóa user không làm mất phiếu chuyển</td>
+            </tr>
+            <tr>
+                <td>stock_transfer_items.stock_transfer_id</td>
+                <td>CASCADE</td>
+                <td>Xóa phiếu chuyển sẽ xóa chi tiết</td>
+            </tr>
+            <tr>
+                <td>stock_transfer_items.product_id</td>
+                <td>RESTRICT</td>
+                <td>Không cho xóa sản phẩm nếu còn dòng chuyển</td>
+            </tr>
+            <tr>
+                <td>stocktakes.warehouse_id</td>
+                <td>RESTRICT</td>
+                <td>Không cho xóa kho nếu còn phiếu kiểm kê</td>
+            </tr>
+            <tr>
+                <td>stocktakes.created_by</td>
+                <td>SET NULL</td>
+                <td>Xóa user không làm mất phiếu kiểm kê</td>
+            </tr>
+            <tr>
+                <td>stocktake_items.stocktake_id</td>
+                <td>CASCADE</td>
+                <td>Xóa phiếu kiểm kê sẽ xóa chi tiết</td>
+            </tr>
+            <tr>
+                <td>stocktake_items.product_id</td>
+                <td>RESTRICT</td>
+                <td>Không cho xóa sản phẩm nếu còn dòng kiểm kê</td>
+            </tr>
+            <tr>
+                <td>inventory_transactions.warehouse_id, product_id</td>
+                <td>RESTRICT</td>
+                <td>Giữ toàn vẹn lịch sử giao dịch</td>
+            </tr>
+            <tr>
+                <td>inventory_transactions.created_by</td>
+                <td>SET NULL</td>
+                <td>Xóa user không làm mất lịch sử</td>
+            </tr>
+        </table>
+    </body>
+</html>
