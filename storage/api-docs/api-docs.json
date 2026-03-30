@@ -7,8 +7,8 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8000",
-            "description": "Local server"
+            "url": "/",
+            "description": "Current server"
         }
     ],
     "paths": {
@@ -20,7 +20,14 @@
                 "summary": "Đăng nhập",
                 "operationId": "1eaad5044f49331e2e4a269354b56d7b",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
@@ -92,7 +99,14 @@
                 "summary": "Tạo người dùng",
                 "operationId": "1c39d237833f73d6aafb23253cd59b5e",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserStoreRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
@@ -151,7 +165,14 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserUpdateRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
@@ -227,7 +248,14 @@
                 "summary": "Tạo kho",
                 "operationId": "2ec0b1fe94eeed133631c0c3d1855c35",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WarehouseRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
@@ -286,7 +314,14 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/WarehouseRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
@@ -352,7 +387,14 @@
                 "summary": "Tạo nhóm hàng",
                 "operationId": "d1a422a5b3749172d8efa3c44bda6006",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductGroupRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
@@ -411,7 +453,14 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductGroupRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
@@ -487,7 +536,14 @@
                 "summary": "Tạo sản phẩm",
                 "operationId": "ddeac8f3367d353241dcd440da907fe6",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
@@ -546,7 +602,14 @@
                     }
                 ],
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
@@ -612,7 +675,14 @@
                 "summary": "Lập phiếu nhập kho",
                 "operationId": "2ab633455ec91c8c244401377ba4eb8f",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StockReceiptRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
@@ -680,7 +750,14 @@
                 "summary": "Lập phiếu xuất kho",
                 "operationId": "62347f5e7770443b24c7b1a3423ef49e",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StockIssueRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
@@ -748,7 +825,14 @@
                 "summary": "Lập phiếu điều chuyển kho",
                 "operationId": "542a600e6a053fc90e11ae8c7096a54d",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StockTransferRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
@@ -816,7 +900,14 @@
                 "summary": "Lập biên bản kiểm kê",
                 "operationId": "49baf308b747ac8195e20273bb6309d5",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StocktakeRequest"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
@@ -967,6 +1058,456 @@
         }
     },
     "components": {
+        "schemas": {
+            "LoginRequest": {
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "admin@warehouse.local"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "Admin@123456"
+                    }
+                },
+                "type": "object"
+            },
+            "UserStoreRequest": {
+                "required": [
+                    "name",
+                    "email",
+                    "password",
+                    "role"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Warehouse Admin",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "admin@warehouse.local",
+                        "maxLength": 255
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "Admin@123456",
+                        "minLength": 6
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "system_admin",
+                        "enum": [
+                            "system_admin",
+                            "warehouse_staff"
+                        ]
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "UserUpdateRequest": {
+                "required": [
+                    "name",
+                    "email",
+                    "role"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Warehouse Admin",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "admin@warehouse.local",
+                        "maxLength": 255
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "Admin@123456",
+                        "nullable": true,
+                        "minLength": 6
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "warehouse_staff",
+                        "enum": [
+                            "system_admin",
+                            "warehouse_staff"
+                        ]
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "WarehouseRequest": {
+                "required": [
+                    "code",
+                    "name",
+                    "address"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "example": "WH-HN-01",
+                        "maxLength": 50
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Kho Hà Nội",
+                        "maxLength": 255
+                    },
+                    "address": {
+                        "type": "string",
+                        "example": "123 Nguyễn Trãi, Hà Nội",
+                        "maxLength": 500
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Kho trung tâm miền Bắc",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "ProductGroupRequest": {
+                "required": [
+                    "code",
+                    "name"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "example": "ELEC",
+                        "maxLength": 50
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Điện tử",
+                        "maxLength": 255
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Nhóm hàng điện tử",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "ProductRequest": {
+                "required": [
+                    "code",
+                    "name",
+                    "unit"
+                ],
+                "properties": {
+                    "product_group_id": {
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "code": {
+                        "type": "string",
+                        "example": "SP-001",
+                        "maxLength": 50
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Laptop Dell Inspiron",
+                        "maxLength": 255
+                    },
+                    "unit": {
+                        "type": "string",
+                        "example": "cái",
+                        "maxLength": 100
+                    },
+                    "min_stock_alert": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 10,
+                        "nullable": true
+                    },
+                    "shelf_life_days": {
+                        "type": "integer",
+                        "example": 365,
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Sản phẩm công nghệ",
+                        "nullable": true
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "StockReceiptItemRequest": {
+                "required": [
+                    "product_id",
+                    "quantity"
+                ],
+                "properties": {
+                    "product_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "quantity": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 100
+                    },
+                    "unit_cost": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 2500000,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "StockReceiptRequest": {
+                "required": [
+                    "warehouse_id",
+                    "receipt_date",
+                    "items"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "example": "PN-202603150001",
+                        "nullable": true,
+                        "maxLength": 100
+                    },
+                    "warehouse_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "receipt_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-03-15"
+                    },
+                    "note": {
+                        "type": "string",
+                        "example": "Nhập hàng từ nhà cung cấp",
+                        "nullable": true
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StockReceiptItemRequest"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "type": "object"
+            },
+            "StockIssueItemRequest": {
+                "required": [
+                    "product_id",
+                    "quantity"
+                ],
+                "properties": {
+                    "product_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "quantity": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 5
+                    },
+                    "unit_price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 3500000,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "StockIssueRequest": {
+                "required": [
+                    "warehouse_id",
+                    "issue_date",
+                    "items"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "example": "PX-202603150001",
+                        "nullable": true,
+                        "maxLength": 100
+                    },
+                    "warehouse_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "issue_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-03-15"
+                    },
+                    "note": {
+                        "type": "string",
+                        "example": "Xuất hàng cho khách",
+                        "nullable": true
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StockIssueItemRequest"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "type": "object"
+            },
+            "StockTransferItemRequest": {
+                "required": [
+                    "product_id",
+                    "quantity"
+                ],
+                "properties": {
+                    "product_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "quantity": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 10
+                    }
+                },
+                "type": "object"
+            },
+            "StockTransferRequest": {
+                "required": [
+                    "from_warehouse_id",
+                    "to_warehouse_id",
+                    "transfer_date",
+                    "items"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "example": "DC-202603150001",
+                        "nullable": true,
+                        "maxLength": 100
+                    },
+                    "from_warehouse_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "to_warehouse_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "transfer_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-03-15"
+                    },
+                    "note": {
+                        "type": "string",
+                        "example": "Chuyển hàng sang kho chi nhánh",
+                        "nullable": true
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StockTransferItemRequest"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "type": "object"
+            },
+            "StocktakeItemRequest": {
+                "required": [
+                    "product_id",
+                    "actual_qty"
+                ],
+                "properties": {
+                    "product_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "actual_qty": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 98
+                    }
+                },
+                "type": "object"
+            },
+            "StocktakeRequest": {
+                "required": [
+                    "warehouse_id",
+                    "checked_at",
+                    "items"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "example": "KK-202603150001",
+                        "nullable": true,
+                        "maxLength": 100
+                    },
+                    "warehouse_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "checked_at": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-03-15"
+                    },
+                    "note": {
+                        "type": "string",
+                        "example": "Kiểm kê định kỳ cuối ngày",
+                        "nullable": true
+                    },
+                    "apply_adjustment": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/StocktakeItemRequest"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "type": "object"
+            }
+        },
         "securitySchemes": {
             "sanctum": {
                 "type": "http",

@@ -9,12 +9,190 @@ use OpenApi\Attributes as OA;
     title: 'Warehouse Management API',
     description: 'API quản lý kho dùng Laravel 12, MySQL, Sanctum, Spatie Permission và Swagger'
 )]
-#[OA\Server(url: 'http://localhost:8000', description: 'Local server')]
+#[OA\Server(url: '/', description: 'Current server')]
 #[OA\SecurityScheme(
     securityScheme: 'sanctum',
     type: 'http',
     scheme: 'bearer',
     bearerFormat: 'Token'
+)]
+#[OA\Schema(
+    schema: 'LoginRequest',
+    type: 'object',
+    required: ['email', 'password'],
+    properties: [
+        new OA\Property(property: 'email', type: 'string', format: 'email', example: 'admin@warehouse.local'),
+        new OA\Property(property: 'password', type: 'string', format: 'password', example: 'Admin@123456'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UserStoreRequest',
+    type: 'object',
+    required: ['name', 'email', 'password', 'role'],
+    properties: [
+        new OA\Property(property: 'name', type: 'string', maxLength: 255, example: 'Warehouse Admin'),
+        new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 255, example: 'admin@warehouse.local'),
+        new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 6, example: 'Admin@123456'),
+        new OA\Property(property: 'role', type: 'string', enum: ['system_admin', 'warehouse_staff'], example: 'system_admin'),
+        new OA\Property(property: 'is_active', type: 'boolean', example: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'UserUpdateRequest',
+    type: 'object',
+    required: ['name', 'email', 'role'],
+    properties: [
+        new OA\Property(property: 'name', type: 'string', maxLength: 255, example: 'Warehouse Admin'),
+        new OA\Property(property: 'email', type: 'string', format: 'email', maxLength: 255, example: 'admin@warehouse.local'),
+        new OA\Property(property: 'password', type: 'string', format: 'password', minLength: 6, nullable: true, example: 'Admin@123456'),
+        new OA\Property(property: 'role', type: 'string', enum: ['system_admin', 'warehouse_staff'], example: 'warehouse_staff'),
+        new OA\Property(property: 'is_active', type: 'boolean', example: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'WarehouseRequest',
+    type: 'object',
+    required: ['code', 'name', 'address'],
+    properties: [
+        new OA\Property(property: 'code', type: 'string', maxLength: 50, example: 'WH-HN-01'),
+        new OA\Property(property: 'name', type: 'string', maxLength: 255, example: 'Kho Hà Nội'),
+        new OA\Property(property: 'address', type: 'string', maxLength: 500, example: '123 Nguyễn Trãi, Hà Nội'),
+        new OA\Property(property: 'description', type: 'string', nullable: true, example: 'Kho trung tâm miền Bắc'),
+        new OA\Property(property: 'is_active', type: 'boolean', example: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'ProductGroupRequest',
+    type: 'object',
+    required: ['code', 'name'],
+    properties: [
+        new OA\Property(property: 'code', type: 'string', maxLength: 50, example: 'ELEC'),
+        new OA\Property(property: 'name', type: 'string', maxLength: 255, example: 'Điện tử'),
+        new OA\Property(property: 'description', type: 'string', nullable: true, example: 'Nhóm hàng điện tử'),
+    ]
+)]
+#[OA\Schema(
+    schema: 'ProductRequest',
+    type: 'object',
+    required: ['code', 'name', 'unit'],
+    properties: [
+        new OA\Property(property: 'product_group_id', type: 'integer', nullable: true, example: 1),
+        new OA\Property(property: 'code', type: 'string', maxLength: 50, example: 'SP-001'),
+        new OA\Property(property: 'name', type: 'string', maxLength: 255, example: 'Laptop Dell Inspiron'),
+        new OA\Property(property: 'unit', type: 'string', maxLength: 100, example: 'cái'),
+        new OA\Property(property: 'min_stock_alert', type: 'number', format: 'float', nullable: true, example: 10),
+        new OA\Property(property: 'shelf_life_days', type: 'integer', nullable: true, example: 365),
+        new OA\Property(property: 'description', type: 'string', nullable: true, example: 'Sản phẩm công nghệ'),
+        new OA\Property(property: 'is_active', type: 'boolean', example: true),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StockReceiptItemRequest',
+    type: 'object',
+    required: ['product_id', 'quantity'],
+    properties: [
+        new OA\Property(property: 'product_id', type: 'integer', example: 1),
+        new OA\Property(property: 'quantity', type: 'number', format: 'float', example: 100),
+        new OA\Property(property: 'unit_cost', type: 'number', format: 'float', nullable: true, example: 2500000),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StockReceiptRequest',
+    type: 'object',
+    required: ['warehouse_id', 'receipt_date', 'items'],
+    properties: [
+        new OA\Property(property: 'code', type: 'string', maxLength: 100, nullable: true, example: 'PN-202603150001'),
+        new OA\Property(property: 'warehouse_id', type: 'integer', example: 1),
+        new OA\Property(property: 'receipt_date', type: 'string', format: 'date', example: '2026-03-15'),
+        new OA\Property(property: 'note', type: 'string', nullable: true, example: 'Nhập hàng từ nhà cung cấp'),
+        new OA\Property(
+            property: 'items',
+            type: 'array',
+            minItems: 1,
+            items: new OA\Items(ref: '#/components/schemas/StockReceiptItemRequest')
+        ),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StockIssueItemRequest',
+    type: 'object',
+    required: ['product_id', 'quantity'],
+    properties: [
+        new OA\Property(property: 'product_id', type: 'integer', example: 1),
+        new OA\Property(property: 'quantity', type: 'number', format: 'float', example: 5),
+        new OA\Property(property: 'unit_price', type: 'number', format: 'float', nullable: true, example: 3500000),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StockIssueRequest',
+    type: 'object',
+    required: ['warehouse_id', 'issue_date', 'items'],
+    properties: [
+        new OA\Property(property: 'code', type: 'string', maxLength: 100, nullable: true, example: 'PX-202603150001'),
+        new OA\Property(property: 'warehouse_id', type: 'integer', example: 1),
+        new OA\Property(property: 'issue_date', type: 'string', format: 'date', example: '2026-03-15'),
+        new OA\Property(property: 'note', type: 'string', nullable: true, example: 'Xuất hàng cho khách'),
+        new OA\Property(
+            property: 'items',
+            type: 'array',
+            minItems: 1,
+            items: new OA\Items(ref: '#/components/schemas/StockIssueItemRequest')
+        ),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StockTransferItemRequest',
+    type: 'object',
+    required: ['product_id', 'quantity'],
+    properties: [
+        new OA\Property(property: 'product_id', type: 'integer', example: 1),
+        new OA\Property(property: 'quantity', type: 'number', format: 'float', example: 10),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StockTransferRequest',
+    type: 'object',
+    required: ['from_warehouse_id', 'to_warehouse_id', 'transfer_date', 'items'],
+    properties: [
+        new OA\Property(property: 'code', type: 'string', maxLength: 100, nullable: true, example: 'DC-202603150001'),
+        new OA\Property(property: 'from_warehouse_id', type: 'integer', example: 1),
+        new OA\Property(property: 'to_warehouse_id', type: 'integer', example: 2),
+        new OA\Property(property: 'transfer_date', type: 'string', format: 'date', example: '2026-03-15'),
+        new OA\Property(property: 'note', type: 'string', nullable: true, example: 'Chuyển hàng sang kho chi nhánh'),
+        new OA\Property(
+            property: 'items',
+            type: 'array',
+            minItems: 1,
+            items: new OA\Items(ref: '#/components/schemas/StockTransferItemRequest')
+        ),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StocktakeItemRequest',
+    type: 'object',
+    required: ['product_id', 'actual_qty'],
+    properties: [
+        new OA\Property(property: 'product_id', type: 'integer', example: 1),
+        new OA\Property(property: 'actual_qty', type: 'number', format: 'float', example: 98),
+    ]
+)]
+#[OA\Schema(
+    schema: 'StocktakeRequest',
+    type: 'object',
+    required: ['warehouse_id', 'checked_at', 'items'],
+    properties: [
+        new OA\Property(property: 'code', type: 'string', maxLength: 100, nullable: true, example: 'KK-202603150001'),
+        new OA\Property(property: 'warehouse_id', type: 'integer', example: 1),
+        new OA\Property(property: 'checked_at', type: 'string', format: 'date', example: '2026-03-15'),
+        new OA\Property(property: 'note', type: 'string', nullable: true, example: 'Kiểm kê định kỳ cuối ngày'),
+        new OA\Property(property: 'apply_adjustment', type: 'boolean', example: true),
+        new OA\Property(
+            property: 'items',
+            type: 'array',
+            minItems: 1,
+            items: new OA\Items(ref: '#/components/schemas/StocktakeItemRequest')
+        ),
+    ]
 )]
 #[OA\Tag(name: 'Authentication', description: 'Đăng nhập / đăng xuất')]
 #[OA\Tag(name: 'Users', description: 'Quản lý người dùng')]
@@ -32,7 +210,10 @@ class ApiDocumentation
         path: '/api/v1/auth/login',
         tags: ['Authentication'],
         summary: 'Đăng nhập',
-        requestBody: new OA\RequestBody(required: true),
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/LoginRequest')
+        ),
         responses: [new OA\Response(response: 200, description: 'Đăng nhập thành công')]
     )]
     public function authLogin(): void {}
@@ -67,7 +248,10 @@ class ApiDocumentation
         tags: ['Users'],
         summary: 'Tạo người dùng',
         security: [['sanctum' => []]],
-        requestBody: new OA\RequestBody(required: true),
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/UserStoreRequest')
+        ),
         responses: [new OA\Response(response: 201, description: 'Tạo người dùng thành công')]
     )]
     public function usersCollection(): void {}
@@ -86,7 +270,10 @@ class ApiDocumentation
         summary: 'Cập nhật người dùng',
         security: [['sanctum' => []]],
         parameters: [new OA\Parameter(name: 'user', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
-        requestBody: new OA\RequestBody(required: true),
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/UserUpdateRequest')
+        ),
         responses: [new OA\Response(response: 200, description: 'Cập nhật thành công')]
     )]
     #[OA\Delete(
@@ -112,7 +299,10 @@ class ApiDocumentation
         tags: ['Warehouses'],
         summary: 'Tạo kho',
         security: [['sanctum' => []]],
-        requestBody: new OA\RequestBody(required: true),
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/WarehouseRequest')
+        ),
         responses: [new OA\Response(response: 201, description: 'Tạo kho thành công')]
     )]
     public function warehousesCollection(): void {}
@@ -131,7 +321,10 @@ class ApiDocumentation
         summary: 'Cập nhật kho',
         security: [['sanctum' => []]],
         parameters: [new OA\Parameter(name: 'warehouse', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
-        requestBody: new OA\RequestBody(required: true),
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/WarehouseRequest')
+        ),
         responses: [new OA\Response(response: 200, description: 'Cập nhật thành công')]
     )]
     #[OA\Delete(
@@ -156,7 +349,10 @@ class ApiDocumentation
         tags: ['Product Groups'],
         summary: 'Tạo nhóm hàng',
         security: [['sanctum' => []]],
-        requestBody: new OA\RequestBody(required: true),
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/ProductGroupRequest')
+        ),
         responses: [new OA\Response(response: 201, description: 'Tạo nhóm hàng thành công')]
     )]
     public function productGroupsCollection(): void {}
@@ -175,7 +371,10 @@ class ApiDocumentation
         summary: 'Cập nhật nhóm hàng',
         security: [['sanctum' => []]],
         parameters: [new OA\Parameter(name: 'productGroup', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
-        requestBody: new OA\RequestBody(required: true),
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/ProductGroupRequest')
+        ),
         responses: [new OA\Response(response: 200, description: 'Cập nhật thành công')]
     )]
     #[OA\Delete(
@@ -201,7 +400,10 @@ class ApiDocumentation
         tags: ['Products'],
         summary: 'Tạo sản phẩm',
         security: [['sanctum' => []]],
-        requestBody: new OA\RequestBody(required: true),
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/ProductRequest')
+        ),
         responses: [new OA\Response(response: 201, description: 'Tạo sản phẩm thành công')]
     )]
     public function productsCollection(): void {}
@@ -220,7 +422,10 @@ class ApiDocumentation
         summary: 'Cập nhật sản phẩm',
         security: [['sanctum' => []]],
         parameters: [new OA\Parameter(name: 'product', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))],
-        requestBody: new OA\RequestBody(required: true),
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/ProductRequest')
+        ),
         responses: [new OA\Response(response: 200, description: 'Cập nhật thành công')]
     )]
     #[OA\Delete(
@@ -245,7 +450,10 @@ class ApiDocumentation
         tags: ['Stock Receipts'],
         summary: 'Lập phiếu nhập kho',
         security: [['sanctum' => []]],
-        requestBody: new OA\RequestBody(required: true),
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/StockReceiptRequest')
+        ),
         responses: [new OA\Response(response: 201, description: 'Lập phiếu nhập thành công')]
     )]
     public function stockReceiptsCollection(): void {}
@@ -272,7 +480,10 @@ class ApiDocumentation
         tags: ['Stock Issues'],
         summary: 'Lập phiếu xuất kho',
         security: [['sanctum' => []]],
-        requestBody: new OA\RequestBody(required: true),
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/StockIssueRequest')
+        ),
         responses: [new OA\Response(response: 201, description: 'Lập phiếu xuất thành công')]
     )]
     public function stockIssuesCollection(): void {}
@@ -299,7 +510,10 @@ class ApiDocumentation
         tags: ['Stock Transfers'],
         summary: 'Lập phiếu điều chuyển kho',
         security: [['sanctum' => []]],
-        requestBody: new OA\RequestBody(required: true),
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/StockTransferRequest')
+        ),
         responses: [new OA\Response(response: 201, description: 'Lập phiếu điều chuyển thành công')]
     )]
     public function stockTransfersCollection(): void {}
@@ -326,7 +540,10 @@ class ApiDocumentation
         tags: ['Stocktakes'],
         summary: 'Lập biên bản kiểm kê',
         security: [['sanctum' => []]],
-        requestBody: new OA\RequestBody(required: true),
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: '#/components/schemas/StocktakeRequest')
+        ),
         responses: [new OA\Response(response: 201, description: 'Tạo biên bản kiểm kê thành công')]
     )]
     public function stocktakesCollection(): void {}
